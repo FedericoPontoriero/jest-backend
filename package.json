@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec babel-node src/server.js",
+    "dev": "NODE_ENV=development nodemon --exec babel-node src/server.js",
     "debug": "npm run dev -- --inspect",
     "test": "jest --runInBand",
     "test:watch": "npm test -- --watch"

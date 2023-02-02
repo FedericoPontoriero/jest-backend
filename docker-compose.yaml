@@ -13,8 +13,8 @@ services:
     image: postgres:13
     container_name: auth-backend-course-test-db
     env_file:
-      - .env.test
+      - .env
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_TEST_PASSWORD:-postgres}
     ports:
-      - ${DB_PORT:-5433}:5432
+      - ${DB_TEST_PORT:-5433}:5432

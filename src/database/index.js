@@ -1,5 +1,7 @@
 import { Sequelize } from "sequelize";
 
+import { registerModels } from "../models";
+
 class Database {
   constructor(environment, dbConfig) {
     this.environment = environment;
@@ -25,6 +27,8 @@ class Database {
     if (!this.isTestEnvironment) {
       console.log("Connection established");
     }
+
+    registerModels(this.connection);
 
     await this.sync();
   }

@@ -27,11 +27,11 @@ router.post(
 
       if (roles && Array.isArray(roles)) {
         const rolesToSave = [];
-
-        roles.forEach(async (role) => {
+        for (const role of roles) {
           const newRole = await Role.create({ role });
           rolesToSave.push(newRole);
-        });
+        }
+
         await newUser.addRoles(rolesToSave);
       }
 

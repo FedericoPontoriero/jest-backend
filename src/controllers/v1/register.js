@@ -4,7 +4,7 @@ import JWTUtils from "../../utils/jwt-utils";
 import runAsyncWrapper from "../../utils/runAsyncWrapper";
 
 const router = Router();
-const { User, Role } = models;
+const { User, Role, sequelize } = models;
 
 router.post(
   "/register",
@@ -19,21 +19,27 @@ router.post(
     }
 
     try {
-      const newUser = await User.create({ email, password });
-      const jwtPayload = { email };
-      const accessToken = JWTUtils.generateAccessToken(jwtPayload);
-      const refreshToken = JWTUtils.generateRefreshToken(jwtPayload);
-      await newUser.createRefreshToken({ token: refreshToken });
+      const result = await sequelize.transaction(async () => {
+        const newUser = await User.create({ email, password });
+        const jwtPayload = { email };
+        const accessToken = JWTUtils.generateAccessToken(jwtPayload);
+        const refreshToken = JWTUtils.generateRefreshToken(jwtPayload);
+        await newUser.createRefreshToken({ token: refreshToken });
 
-      if (roles && Array.isArray(roles)) {
-        const rolesToSave = [];
-        for (const role of roles) {
-          const newRole = await Role.create({ role });
-          rolesToSave.push(newRole);
+        if (roles && Array.isArray(roles)) {
+          const rolesToSave = [];
+          for (const role of roles) {
+            const newRole = await Role.create({ role });
+            rolesToSave.push(newRole);
+          }
+
+          await newUser.addRoles(rolesToSave);
         }
 
-        await newUser.addRoles(rolesToSave);
-      }
+        return { accessToken, refreshToken };
+      });
+
+      const { accessToken, refreshToken } = result;
 
       return res.send({
         success: true,

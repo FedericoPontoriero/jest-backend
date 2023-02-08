@@ -1,6 +1,7 @@
 import request from "supertest";
 import TestHelpers from "../../tests-helpers";
 import models from "../../../src/models";
+import JWTUtils from "../../../src/utils/jwt-utils";
 
 describe("token", () => {
   let app;
@@ -48,6 +49,24 @@ describe("token", () => {
         .expect(401);
       expect(response.body.success).toEqual(false);
       expect(response.body.message).toEqual("Bearer token malformed");
+    });
+  });
+
+  describe("errors middleware", () => {
+    it("should return 500 if something went wrong", async () => {
+      const jwtUtilsSpy = jest.spyOn(JWTUtils, "generateAccessToken");
+      jwtUtilsSpy.mockImplementation(() => {
+        throw Error("test error");
+      });
+      const refreshToken = newUserResponse.body.data.refreshToken;
+      const response = await request(app)
+        .post("/1/token")
+        .set("Authorization", `Bearer ${refreshToken}`)
+        .send()
+        .expect(500);
+      jwtUtilsSpy.mockRestore();
+      expect(response.body.success).toEqual(false);
+      expect(response.body.message).toEqual("test error");
     });
   });
 

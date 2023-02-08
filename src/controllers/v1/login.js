@@ -30,8 +30,8 @@ router.post(
       if (!savedRefreshToken) {
         await user.createRefreshToken({ token: refreshToken });
       } else {
-        user.RefreshToken.token = refreshToken;
-        await user.RefreshToken.save();
+        savedRefreshToken.token = refreshToken;
+        await savedRefreshToken.save();
       }
     } else {
       refreshToken = savedRefreshToken.token;

@@ -10,9 +10,9 @@ router.post(
   "/login",
   runAsyncWrapper(async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const user = await User.scope("withPassword").findOne({ where: { email } });
 
-    if (!user || !(await User.comparePasswords(password, user.password))) {
+    if (!user || !(await user.comparePasswords(password))) {
       return res
         .status(401)
         .send({ success: false, message: "Invalid credentials" });
